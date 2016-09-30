@@ -4,17 +4,21 @@
  * ls(1)
  */
 
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <dirent.h>
 
 int main(int argc, char **argv) {
 
   int noOfFlags = 0;
   int noOfFiles = 0;
 
-  //These integers will be 0 if the flag is off or 1 if the flag is on
+  /* These integers will be 0 if the flag is off or 1 if the flag is on */
   int A = 0;
   int a = 0;
   int C = 0;
@@ -38,11 +42,38 @@ int main(int argc, char **argv) {
   int x = 0;
   int one = 0;
 
-  int lpr = 0; //For loops
+  int lpr = 0; //Multi-purpose integer
+
+  DIR *dir;
+  struct dirent *entry;
+
+  struct winsize size;
+  int widthRemaining = 0;
 
   if(argc == 1) {
-    //Execute ls without any flags or files
+    /* Execute ls without any flags or files */
+    if((dir = opendir(".")) == NULL) {
+      fprintf(stderr, "Unable to open current directory: %s\n", strerror(errno));
+      return 2;
+    }
+    else {
+      ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+      widthRemaining = size.ws_col;
+      while((entry = readdir (dir)) != NULL) {
+	if(strcmp(entry -> d_name, ".") == 0 || strcmp(entry -> d_name, "..") == 0) {
+	  continue;
+	}
+	lpr = strlen(entry -> d_name) + 3;
+	if(lpr > widthRemaining) {
+	  printf("\n");
+	  widthRemaining = size.ws_col;
+	}
+	printf("%s   ", entry -> d_name);
 
+      }
+      closedir(dir);
+      printf("\n");
+    }
 
   }
   else {
@@ -139,7 +170,10 @@ int main(int argc, char **argv) {
 	  noOfFlags++;
 	}
 
-
+	/*
+	 * After obtaining all of the flags, the program will construct the
+	 * strings that will be printed out to the terminal
+	 */
 
       }
 
