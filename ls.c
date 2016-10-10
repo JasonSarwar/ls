@@ -51,6 +51,106 @@ int main(int argc, char **argv) {
   struct winsize size;
   int widthRemaining = 0;
 
+  while ((option = getopt(argc, argv, "AacCdFfhiklnqRrSstuwx1")) != -1) {
+    switch(option) {
+      case 'A':
+        A = 1;
+        break;
+      case 'a':
+        a = 1;
+        break;
+      case 'c':
+        c = 1;
+        break;
+      case 'C':
+        C = 1;
+        l = 0;
+        one = 0;
+	 n = 0;
+	 x = 0;
+        break;
+      case 'd':
+        d = 1;
+        break;
+      case 'F':
+        F = 1;
+        break;
+      case 'f':
+        f = 1;
+        break;
+      case 'h':
+        h = 1;
+        break;
+      case 'i':
+        i = 1;
+        break;
+      case 'k':
+        k = 1;
+        break;
+      case 'l':
+        l = 1;
+        C = 0;
+	 one = 0;
+	 n = 0;
+	 x = 0;
+        break;
+      case 'n':
+        n = 1;
+        l = 0;
+	 C = 0;
+	 one = 0;
+	 x = 0;
+        break;
+      case 'q':
+        q = 1;
+        w = 0;
+        break;
+      case 'R':
+        R = 1;
+        break;
+      case 'r':
+        r = 1;
+        break;
+      case 'S':
+        S = 1;
+        break;
+      case 's':
+        s = 1;
+        break;
+      case 't':
+        t = 1;
+        break;
+      case 'u':
+        u = 1;
+        break;
+      case 'w':
+        w = 1;
+        q = 0;
+        break;
+      case 'x':
+        x = 1;
+        l = 0;
+	 C = 0;
+	 one = 0;
+	 n = 0;
+        break;
+      case '1':
+        one = 1;
+        l = 0;
+	 C = 0;
+	 n = 0;
+	 x = 0;
+        break;
+      case '?':
+	 //fprintf(stderr, "ls: invalid option -- '%c'\n", optopt);
+	 return 4;
+      default:
+	 printf("ls: internal error\n");
+	 return 5;
+      }
+    }
+
+
   if(argc == 1) {
     /* Execute ls without any flags or files */
     if((dir = opendir(".")) == NULL) {
@@ -84,110 +184,6 @@ int main(int argc, char **argv) {
     }
 
   }
-  else {
-
-    while ((option = getopt(argc, argv, "AacCdFfhiklnqRrSstuwx1")) != -1) {
-      switch(option) {
-        case 'A':
-          A = 1;
-          break;
-        case 'a':
-          a = 1;
-          break;
-        case 'c':
-          c = 1;
-          break;
-        case 'C':
-          C = 1;
-          l = 0;
-	  one = 0;
-	  n = 0;
-	  x = 0;
-          break;
-        case 'd':
-          d = 1;
-          break;
-        case 'F':
-          F = 1;
-          break;
-        case 'f':
-          f = 1;
-          break;
-        case 'h':
-          h = 1;
-          break;
-        case 'i':
-          i = 1;
-          break;
-        case 'k':
-          k = 1;
-          break;
-        case 'l':
-          l = 1;
-          C = 0;
-	  one = 0;
-	  n = 0;
-	  x = 0;
-          break;
-        case 'n':
-          n = 1;
-          l = 0;
-	  C = 0;
-	  one = 0;
-	  x = 0;
-          break;
-        case 'q':
-          q = 1;
-          w = 0;
-          break;
-        case 'R':
-          R = 1;
-          break;
-        case 'r':
-          r = 1;
-          break;
-        case 'S':
-          S = 1;
-          break;
-        case 's':
-          s = 1;
-          break;
-        case 't':
-          t = 1;
-          break;
-        case 'u':
-          u = 1;
-          break;
-        case 'w':
-          w = 1;
-          q = 0;
-          break;
-        case 'x':
-          x = 1;
-          l = 0;
-	  C = 0;
-	  one = 0;
-	  n = 0;
-          break;
-        case '1':
-          one = 1;
-          l = 0;
-	  C = 0;
-	  n = 0;
-	  x = 0;
-          break;
-        case '?':
-	  //fprintf(stderr, "ls: invalid option -- '%c'\n", optopt);
-	  return 4;
-        default:
-	  printf("ls: internal error\n");
-	  return 5;
-      }
-    }
-
-  
-
-  }//else
 
 
   return 0;
