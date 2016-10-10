@@ -51,6 +51,10 @@ int main(int argc, char **argv) {
   struct winsize size;
   int widthRemaining = 0;
 
+  char **fileNames;
+
+  
+
   while ((option = getopt(argc, argv, "AacCdFfhiklnqRrSstuwx1")) != -1) {
     switch(option) {
       case 'A':
@@ -66,8 +70,8 @@ int main(int argc, char **argv) {
         C = 1;
         l = 0;
         one = 0;
-	 n = 0;
-	 x = 0;
+	n = 0;
+	x = 0;
         break;
       case 'd':
         d = 1;
@@ -90,16 +94,16 @@ int main(int argc, char **argv) {
       case 'l':
         l = 1;
         C = 0;
-	 one = 0;
-	 n = 0;
-	 x = 0;
+	one = 0;
+	n = 0;
+	x = 0;
         break;
       case 'n':
         n = 1;
         l = 0;
-	 C = 0;
-	 one = 0;
-	 x = 0;
+	C = 0;
+	one = 0;
+	x = 0;
         break;
       case 'q':
         q = 1;
@@ -130,16 +134,16 @@ int main(int argc, char **argv) {
       case 'x':
         x = 1;
         l = 0;
-	 C = 0;
-	 one = 0;
-	 n = 0;
+	C = 0;
+	one = 0;
+	n = 0;
         break;
       case '1':
         one = 1;
         l = 0;
-	 C = 0;
-	 n = 0;
-	 x = 0;
+	C = 0;
+	n = 0;
+	x = 0;
         break;
       case '?':
 	 //fprintf(stderr, "ls: invalid option -- '%c'\n", optopt);
@@ -148,7 +152,29 @@ int main(int argc, char **argv) {
 	 printf("ls: internal error\n");
 	 return 5;
       }
+  }
+  
+  lpr = 1;
+  if((fileNames = (char**)malloc(sizeof(char*) * 256)) == NULL) {
+    fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
+    return 6;
+  }
+
+  while(lpr < argc) {
+    if(argv[lpr][0] != '-') {
+      if((fileNames[noOfFiles] = (char*)malloc(sizeof(char) * strlen(argv[lpr]))) == NULL) {
+	  fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
+	  free(fileNames);
+	  return 7;
+	}
+      strcpy(fileNames[noOfFiles], argv[lpr]);
+      printf("%s\n", fileNames[noOfFiles]);
+      noOfFiles++;
     }
+
+    lpr++;
+  }
+
 
 
   if(argc == 1) {
@@ -185,6 +211,8 @@ int main(int argc, char **argv) {
 
   }
 
-
+  for(lpr = 0; lpr < noOfFiles; lpr++)
+    free(fileNames[lpr]);
+  free(fileNames);
   return 0;
 }
