@@ -12,10 +12,10 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
+#include <stropts.h>
 
 int main(int argc, char **argv) {
 
-  int noOfFlags = 0;
   int noOfFiles = 0;
 
   /* These integers will be 0 if the flag is off or 1 if the flag is on */
@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
   int x = 0;
   int one = 0;
 
+  int option = 0; //Integer for Switch Case
   int lpr = 0; //Multi-purpose integer
 
   DIR *dir;
@@ -57,8 +58,11 @@ int main(int argc, char **argv) {
       return 2;
     }
     else {
-      ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-      widthRemaining = size.ws_col;
+      if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) == -1) {
+	fprintf(stderr, "ioctl has failed: %s\n", strerror(errno));
+	return 3;
+      }
+
       while((entry = readdir (dir)) != NULL) {
 	if(strcmp(entry -> d_name, ".") == 0 || strcmp(entry -> d_name, "..") == 0) {
 	  continue;
@@ -71,115 +75,119 @@ int main(int argc, char **argv) {
 	printf("%s   ", entry -> d_name);
 
       }
-      closedir(dir);
+
+      if(closedir(dir) < 0) {
+	fprintf(stderr, "Unable to close directory: %s\n", strerror(errno));
+	return 4;
+      }
       printf("\n");
     }
 
   }
   else {
 
-    if(argv[2][0] == '-') {
-      lpr = 1;
-      while(argv[2][lpr] != '\0') {
-	if(argv[2][lpr] == 'A') {
-	  A = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'a') {
-	  a = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'c') {
-	  c = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'C') {
-	  C = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'd') {
-	  d = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'F') {
-	  F = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'f') {
-	  f = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'h') {
-	  h = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'i') {
-	  i = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'k') {
-	  k = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'l') {
-	  l = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'n') {
-	  n = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'q') {
-	  q = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'R') {
-	  R = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'r') {
-	  r = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'S') {
-	  S = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 's') {
-	  s = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 't') {
-	  t = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'u') {
-	  u = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'w') {
-	  w = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == 'x') {
-	  x = 1;
-	  noOfFlags++;
-	}
-	else if(argv[2][lpr] == '1') {
-	  one = 1;
-	  noOfFlags++;
-	}
-
-	/*
-	 * After obtaining all of the flags, the program will construct the
-	 * strings that will be printed out to the terminal
-	 */
-
+    while ((option = getopt(argc, argv, "AacCdFfhiklnqRrSstuwx1")) != -1) {
+      switch(option) {
+        case 'A':
+          A = 1;
+          break;
+        case 'a':
+          a = 1;
+          break;
+        case 'c':
+          c = 1;
+          break;
+        case 'C':
+          C = 1;
+          l = 0;
+	  one = 0;
+	  n = 0;
+	  x = 0;
+          break;
+        case 'd':
+          d = 1;
+          break;
+        case 'F':
+          F = 1;
+          break;
+        case 'f':
+          f = 1;
+          break;
+        case 'h':
+          h = 1;
+          break;
+        case 'i':
+          i = 1;
+          break;
+        case 'k':
+          k = 1;
+          break;
+        case 'l':
+          l = 1;
+          C = 0;
+	  one = 0;
+	  n = 0;
+	  x = 0;
+          break;
+        case 'n':
+          n = 1;
+          l = 0;
+	  C = 0;
+	  one = 0;
+	  x = 0;
+          break;
+        case 'q':
+          q = 1;
+          w = 0;
+          break;
+        case 'R':
+          R = 1;
+          break;
+        case 'r':
+          r = 1;
+          break;
+        case 'S':
+          S = 1;
+          break;
+        case 's':
+          s = 1;
+          break;
+        case 't':
+          t = 1;
+          break;
+        case 'u':
+          u = 1;
+          break;
+        case 'w':
+          w = 1;
+          q = 0;
+          break;
+        case 'x':
+          x = 1;
+          l = 0;
+	  C = 0;
+	  one = 0;
+	  n = 0;
+          break;
+        case '1':
+          one = 1;
+          l = 0;
+	  C = 0;
+	  n = 0;
+	  x = 0;
+          break;
+        case '?':
+	  //fprintf(stderr, "ls: invalid option -- '%c'\n", optopt);
+	  return 4;
+        default:
+	  printf("ls: internal error\n");
+	  return 5;
       }
-
     }
 
-  }
+  
+
+  }//else
 
 
   return 0;
