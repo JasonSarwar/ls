@@ -119,16 +119,23 @@ int printOut(char* path) {
 	  printOut(fullPath);
         } 
 
-	free(fullPath);
-
+	if(fullPath != NULL) {
+	  free(fullPath);
+	  fullPath = NULL;
+	}
       }
       else {
-	free(fileNames[lpr]);
+	if(fileNames[lpr] != NULL) {
+	  free(fileNames[lpr]);
+	  fileNames[lpr] = NULL;
+        }
       }
 
     }
-    free(fileNames);
-
+    if(fileNames != NULL) {
+      free(fileNames);
+      fileNames = NULL;
+    }
   }
 
   return 0;
@@ -267,7 +274,6 @@ int main(int argc, char **argv) {
     if(argv[lpr][0] != '-') {
       if((fileNames[noOfFiles] = (char*)malloc(sizeof(char) * strlen(argv[lpr]))) == NULL) {
 	  fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
-	  free(fileNames);
 	  return 7;
 	}
       strcpy(fileNames[noOfFiles], argv[lpr]);
@@ -328,18 +334,22 @@ int main(int argc, char **argv) {
 
 
   }
+  else{
+    printOut(".");
+  }
+  /*
   else {
     if((dir = opendir(".")) == NULL) {
       fprintf(stderr, "Unable to open current directory: %s\n", strerror(errno));
       return 2;
     }
     else {
-      /*
+      
       if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) == -1) {
 	fprintf(stderr, "ioctl has failed: %s\n", strerror(errno));
 	return 3;
       }
-      */
+      
       while((entry = readdir (dir)) != NULL) {
 	strcpy(fileNames[noOfFiles], entry -> d_name);
 	noOfFiles++;
@@ -352,10 +362,10 @@ int main(int argc, char **argv) {
     }
 
   }
-
-
+  
+  
   if(argc == 1) {
-    /* Execute ls without any flags or files */
+    // Execute ls without any flags or files 
     if((dir = opendir(".")) == NULL) {
       fprintf(stderr, "Unable to open current directory: %s\n", strerror(errno));
       return 2;
@@ -387,9 +397,7 @@ int main(int argc, char **argv) {
     }
 
   }
-
-  for(lpr = 0; lpr < noOfFiles; lpr++)
-    free(fileNames[lpr]);
+  */
   free(fileNames);
   return 0;
 }
