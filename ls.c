@@ -114,11 +114,15 @@ int printOut(char* path) {
     }
     else if(A == 0 && a == 1 && ((entry -> d_name)[0] == '.')) {
     
-      if((fullPath = (char*)malloc(sizeof(char) * (strlen(path) + strlen(fileNames[lpr])))) == NULL) {
+      if((fullPath = (char*)malloc(sizeof(char) * (strlen(path) + strlen(entry -> d_name)))) == NULL) {
 	fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
 	return 17;
       }
-      
+
+      strcpy(fullPath, path);
+      strcat(fullPath, "/");
+      strcat(fullPath, (entry -> d_name));      
+
       if(stat(fullPath, &statbuf) != 0) {
 	fprintf(stderr, "error in statbuf: %s\n", strerror(errno));
 	return 18;
@@ -129,7 +133,7 @@ int printOut(char* path) {
 
     }
     else if(A == 1 && ((entry -> d_name)[0] == '.')) {
-      if(strcmp(entry -> d_name, ".") == 0 || strcmp(entry -> d_name, "..") == 0 ) {
+      if((entry -> d_name)[1] == '.' || (entry -> d_name)[1] == '\0') {
 	continue;
       }
     }
