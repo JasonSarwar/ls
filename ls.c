@@ -108,7 +108,35 @@ int printOut(char* path) {
   
   //Loop through all the files and directories in current directory and print them
   while((entry = readdir (dir)) != NULL) {
+
+    if(A == 0 && a == 0 && ((entry -> d_name)[0] == '.')) {
+      continue;
+    }
+    else if(A == 0 && a == 1 && ((entry -> d_name)[0] == '.')) {
     
+      if((fullPath = (char*)malloc(sizeof(char) * (strlen(path) + strlen(fileNames[lpr])))) == NULL) {
+	fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
+	return 17;
+      }
+      
+      if(stat(fullPath, &statbuf) != 0) {
+	fprintf(stderr, "error in statbuf: %s\n", strerror(errno));
+	return 18;
+      }
+
+      if(!S_ISDIR(statbuf.st_mode))
+	continue;
+
+    }
+    else if(A == 1 && ((entry -> d_name)[0] == '.')) {
+      if(strcmp(entry -> d_name, ".") == 0 || strcmp(entry -> d_name, "..") == 0 ) {
+	continue;
+      }
+    }
+
+    if(((strcmp(entry -> d_name, ".") == 0 || strcmp(entry -> d_name, "..") == 0 )) && a == 0)
+      continue;
+
     if((fileNames[noOfFiles] = (char*)malloc(sizeof(char) * strlen(entry -> d_name))) == NULL) {
       fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
       return 17;
@@ -144,7 +172,6 @@ int printOut(char* path) {
       //free(fullPath);
     }
     
-    //printf("%s\n", fileNames[noOfFiles]); 
     noOfFiles++;
   }
   
@@ -243,7 +270,7 @@ int printOut(char* path) {
       }
       
       if(S_ISDIR(statbuf.st_mode) != 0) {
-	//Print out directories and their content
+	//Print out directories and their contents
 	
 	printf("\n%s:\n", fullPath);
 	
@@ -274,7 +301,7 @@ int printOut(char* path) {
 
 
 
-
+/* Main function */
 int main(int argc, char **argv) {
   
   int noOfFiles = 0;
@@ -283,9 +310,6 @@ int main(int argc, char **argv) {
   int lpr = 0; //Multi-purpose integer
   int lpr2 = 0; //Multi-purpose integer
 
-  DIR *dir;
-  struct dirent *entry;
-  
   struct winsize size;
   int widthRemaining = 0;
   
@@ -474,7 +498,7 @@ int main(int argc, char **argv) {
       
       if(S_ISDIR(statbuf.st_mode) == 0) {
 	//Print out files only
-	/* Need to edit a lot here in the future */
+       
 	if(aMax > widthRemaining) {
 	   printf("\n");
 	   widthRemaining = size.ws_col;
@@ -508,7 +532,6 @@ int main(int argc, char **argv) {
 	   printf(" ");
 	 widthRemaining -= aMax;
 	 
-	 /* Need to edit a lot here in the future */
       }
       
     }
