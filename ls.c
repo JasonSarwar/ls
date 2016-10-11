@@ -56,6 +56,8 @@ int printOut(char* path) {
 
   struct stat statbuf;
 
+  int lpr = 0; //Multi-purpose integer
+
   if((fileNames = (char**)malloc(sizeof(char*) * 256)) == NULL) {
     fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
     return 16;
@@ -72,9 +74,17 @@ int printOut(char* path) {
     return 3;
      }
     */
+
+    //Loop through all the files and directories in current directory and print them
     while((entry = readdir (dir)) != NULL) {
-      //strcpy(fileNames[noOfFiles], entry -> d_name);
-      printf("%s\n", entry -> d_name); 
+      
+      if((fileNames[noOfFiles] = (char*)malloc(sizeof(char) * strlen(entry -> d_name))) == NULL) {
+	fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
+	return 17;
+      }
+
+      strcpy(fileNames[noOfFiles], entry -> d_name);
+      printf("%s\n", fileNames[noOfFiles]); 
       noOfFiles++;
     }
 
@@ -82,6 +92,27 @@ int printOut(char* path) {
       fprintf(stderr, "Unable to close directory: %s\n", strerror(errno));
       return 4;
     }
+
+    //Loop through list of files and directories
+    for(lpr = 0; lpr < noOfFiles; lpr++) {
+      if(R == 1) { //Recursive flag
+        if(stat(fileNames[lpr], &statbuf) != 0) {
+	   fprintf(stderr, "error in statbuf: %s\n", strerror(errno));
+          return 10;
+        }
+
+        if(S_ISDIR(statbuf.st_mode) != 0) {
+	  //Print out directories and their content
+          printf("\n%s:\n", fileNames[lpr]);
+	   printOut(fileNames[lpr]);
+
+        } 
+
+      }
+      free(fileNames[lpr]);
+    }
+    free(fileNames);
+
   }
 
   return 0;
