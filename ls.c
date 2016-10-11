@@ -54,6 +54,8 @@ int printOut(char* path) {
 
   char **fileNames;
 
+  char *fullPath;
+
   struct stat statbuf;
 
   int lpr = 0; //Multi-purpose integer
@@ -95,21 +97,35 @@ int printOut(char* path) {
 
     //Loop through list of files and directories
     for(lpr = 0; lpr < noOfFiles; lpr++) {
-      if(R == 1) { //Recursive flag
-        if(stat(fileNames[lpr], &statbuf) != 0) {
-	   fprintf(stderr, "error in statbuf: %s\n", strerror(errno));
-          return 10;
-        }
+      if(R == 1 && strcmp(fileNames[lpr], "..") != 0 && strcmp(fileNames[lpr], ".") != 0) { //Recursive flag
+       if((fullPath = (char*)malloc(sizeof(char) * (strlen(path) + strlen(fileNames[lpr])))) == NULL) {
+           fprintf(stderr, "Malloc failed: %s\n", strerror(errno));
+           return 14;
+       }
+       strcpy(fullPath, path);
+       strcat(fullPath, "/");
+       strcat(fullPath, fileNames[lpr]);
+       free(fileNames[lpr]);
+       if(stat(fullPath, &statbuf) != 0) {
+	 fprintf(stderr, "error in statbuf: %s\n", strerror(errno));
+	 return 10;
+       }
 
         if(S_ISDIR(statbuf.st_mode) != 0) {
 	  //Print out directories and their content
-          printf("\n%s:\n", fileNames[lpr]);
-	   printOut(fileNames[lpr]);
+	  
+	  printf("\n%s:\n", fullPath);
 
+	  printOut(fullPath);
         } 
 
+	free(fullPath);
+
       }
-      free(fileNames[lpr]);
+      else {
+	free(fileNames[lpr]);
+      }
+
     }
     free(fileNames);
 
@@ -304,9 +320,8 @@ int main(int argc, char **argv) {
 	//Print out directories and their content
         printf("\n%s:\n", fileNames[lpr]);
 	printOut(fileNames[lpr]);
-
       }      
-
+      free(fileNames[lpr]);
     }
 
 
